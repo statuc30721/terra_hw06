@@ -58,6 +58,5 @@ resource "aws_subnet" "myapp-subnet-1" {
     tags = {
       Name: "${var.env_prefix}-subnet-1"
     }
-  
-}
+  }
 
