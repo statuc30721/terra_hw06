@@ -47,21 +47,6 @@ variable env_prefix {
 # 
 # Resources
 
-# Setup additional routes within the VPC. 
-
-resource "aws_route_table" "myapp-route-table" {
-  vpc_id = aws_vpc.myapp-vpc.id
-  route = {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.myapp-igw.id
-  }
-}
-
-resource "aws_internet_gateway" "myapp-igw" {
-  vpc_id = aws_vpc.myapp-vpc.id
-}
-
-
 # Create a Virtual Private Cloud. 
 resource "aws_vpc" "myapp-vpc" {
   cidr_block = var.vpc_cidr_block
@@ -83,3 +68,24 @@ resource "aws_subnet" "myapp-subnet-1" {
     }
   }
 
+# Setup additional routes within the VPC environment. 
+
+resource "aws_route_table" "myapp-route-table" {
+  vpc_id = aws_vpc.myapp-vpc.id
+  route = {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.myapp-igw.id
+  }
+  tags = {
+    Name: "${var.env_prefix}-rtb"
+  }
+}
+
+# Add a internet gateway to the VPC. 
+
+resource "aws_internet_gateway" "myapp-igw" {
+   vpc_id = aws_vpc.myapp-vpc.id
+   tags = {
+     Name: "${var.env_prefix}-igw"
+   }
+}
