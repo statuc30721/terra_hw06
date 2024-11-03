@@ -11,4 +11,4 @@ For example if you have a development and test environment you can create two se
 terraform-dev.tfvars
 terraform-test.tfvars
 
-# You must rename or remove the terraform.tfvars file in this project to avoid potential problems.
+Note: This project defaults with no "terraform.tfvar" file present on github. You will need to make your own variable file or provide the inputs via command line.
