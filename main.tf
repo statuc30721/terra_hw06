@@ -18,12 +18,12 @@ variable "aws_region" {
 # I use a variable file versus command line to make it easier to 
 # deploy. 
 
-variable "cidr_blocks" {
-  description = "cidr blocks and name tags for vpc and subnets"
-  type = list(object({
-    cidr_block = string
-    name = string 
-  }))
+variable "vpc_cidr_block" {
+  description = "CIDR block for VPC"
+}
+
+variable "subnet_cidr_block" {
+  
 }
 
 # The default value can be overriden in a variable file.
@@ -35,14 +35,15 @@ variable "avail_zone" {
   
 }
 
-# Create a Virtual Private Cloud with name myapp-vpc. 
-# Note that this gets overridden if variables are provided
-# from a terraform tfvars file or via command line.
+variable env_prefix {
+  description = "Use to identify for deployment."
+}
 
+# Create a Virtual Private Cloud. 
 resource "aws_vpc" "myapp-vpc" {
-  cidr_block = var.cidr_blocks[0].cidr_block
+  cidr_block = var.vpc_cidr_block
   tags = {
-    Name: var.cidr_blocks[0].name
+    Name: "${var.env_prefix}-vpc"
   }
 }
 
@@ -52,10 +53,10 @@ resource "aws_vpc" "myapp-vpc" {
 
 resource "aws_subnet" "myapp-subnet-1" {
     vpc_id = aws_vpc.myapp-vpc.id
-    cidr_block = var.cidr_blocks[1].cidr_block
+    cidr_block = var.subnet_cidr_block
     availability_zone = var.avail_zone
     tags = {
-      Name: var.cidr_blocks[1].name
+      Name: "${var.env_prefix}-subnet-1"
     }
   
 }
