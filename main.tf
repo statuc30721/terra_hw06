@@ -43,6 +43,10 @@ variable env_prefix {
   description = "Use to identify for deployment environment."
 }
 
+variable my_ip {
+  description = "Identify source IP address allowed to remotely access the virtual machine."
+}
+# 
 #----------------------------------------------------------------#
 # 
 # Resources
@@ -56,8 +60,6 @@ resource "aws_vpc" "myapp-vpc" {
 }
 
 # Create a subnet within the Virtual Private Cloud. 
-# Note that the name gets overridden if variables are provided
-# from a terraform tfvars file or via command line.
 
 resource "aws_subnet" "myapp-subnet-1" {
     vpc_id = aws_vpc.myapp-vpc.id
@@ -68,7 +70,7 @@ resource "aws_subnet" "myapp-subnet-1" {
     }
   }
 
-# Add a internet gateway to the VPC. 
+# Add an internet gateway to the VPC. 
 
 resource "aws_internet_gateway" "myapp-igw" {
    vpc_id = aws_vpc.myapp-vpc.id
@@ -78,16 +80,49 @@ resource "aws_internet_gateway" "myapp-igw" {
 }
 
 
-# Setup additional routes within the VPC environment. 
+# Setup default route table within the VPC environment. 
 
-resource "aws_default_route_table" "myapp-route-table" {
+resource "aws_default_route_table" "main-rtb" {
   default_route_table_id = aws_vpc.myapp-vpc.default_route_table_id
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.myapp-igw.id
   }
   tags = {
-    Name: "${var.env_prefix}-rtb"
+    Name: "${var.env_prefix}-main-rtb"
   }
 }
 
+#----------------------------------------------------------------#
+#
+# Security Groups
+
+resource "aws_default_security_group" "default-sg" {
+  vpc_id = aws_vpc.myapp-vpc.id  
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "TCP"
+    cidr_blocks = [var.my_ip]
+  }
+
+  ingress {
+    from_port = 8080
+    to_port = 8080
+    protocol = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+   egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    prefix_list_ids = []
+  }
+  tags = {
+    Name: "${var.env_prefix}-default-sg"
+  }
+
+}
