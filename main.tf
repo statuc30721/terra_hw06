@@ -48,7 +48,7 @@ variable my_ip {
 }
 
 variable instance_type {
-  description = "Identify instamce type to be used for virtual machine."
+  description = "Identify instance type to be used for virtual machine."
 }
 
 variable "public_key_location" {
